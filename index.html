@@ -32,6 +32,15 @@ header{margin-bottom:clamp(28px,4vw,48px)}
 h1{font-family:var(--display);font-weight:700;font-size:clamp(44px,6vw,80px);line-height:.92;text-transform:uppercase;margin:0}
 .intro{color:var(--muted);max-width:52ch;margin:16px 0 0}
 
+.contact{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin-top:22px;font:500 13px/1.4 var(--mono)}
+.contact a{color:var(--ink);text-decoration:none;border-bottom:1px solid rgba(22,40,45,.35);padding-bottom:2px}
+.contact a:hover,.contact a:focus-visible{border-bottom-color:var(--ink)}
+.contact .btn{background:var(--ink);color:var(--offwhite);border:0;padding:9px 14px;letter-spacing:.08em;text-transform:uppercase;font-size:12px}
+.contact .btn:hover,.contact .btn:focus-visible{background:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.foot{margin-top:56px;padding-top:18px;border-top:1px solid rgba(22,40,45,.15);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;font:400 12.5px/1.5 var(--mono);color:var(--muted)}
+.foot p{margin:0}
+.foot a{color:var(--ink)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;align-items:start}
 .card{display:flex;flex-direction:column;background:#fff;border:1px solid rgba(22,40,45,.12);text-decoration:none}
 .card .body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
@@ -74,6 +83,10 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(44px,6vw,80px);lin
     <p class="kicker">GIS portfolio</p>
     <h1>Ethan Hardacre</h1>
     <p class="intro">Spatial analysis and cartography for trails, public lands, and the people who take care of them.</p>
+    <nav class="contact" aria-label="Contact">
+      <a class="btn" href="Ethan_Hardacre_Resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a>
+      <a href="mailto:hardacre.ethan@gmail.com">hardacre.ethan@gmail.com</a>
+    </nav>
   </header>
 
   <main class="grid">
@@ -109,6 +122,11 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(44px,6vw,80px);lin
       </div>
     </a>
   </main>
+
+  <footer class="foot">
+    <p>Ethan Hardacre · GIS analyst and developer</p>
+    <p><a href="mailto:hardacre.ethan@gmail.com">hardacre.ethan@gmail.com</a> · <a href="Ethan_Hardacre_Resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a></p>
+  </footer>
 </div>
 </body>
 </html>
