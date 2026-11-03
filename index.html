@@ -122,8 +122,9 @@ h1 em{font-style:normal;color:var(--hot)}
 .card p:last-child{margin-bottom:0}
 .card .rule{font-family:var(--mono);font-size:14px;line-height:1.5;border-top:1px solid rgba(22,40,45,.15);padding-top:12px;margin-top:4px}
 .card .rule b{color:var(--hot);font-weight:500}
-.card.question{border-left-color:var(--hot)}
-.card.question .big{font-family:var(--display);font-weight:600;font-size:clamp(26px,2.4vw,32px);line-height:1.1;margin:18px 0 14px;padding-top:16px;border-top:1px solid rgba(22,40,45,.15)}
+.card.question{border-left-color:var(--hot);max-width:54ch}
+.card .h2b{margin-top:22px}
+.card.question .big{font-family:var(--display);font-weight:600;font-size:clamp(26px,2.4vw,32px);line-height:1.1;margin:18px 0 0;padding-top:16px;border-top:1px solid rgba(22,40,45,.15)}
 .card.question .after{color:var(--muted);border-top:1px solid rgba(22,40,45,.15);padding-top:14px}
 /* trail gets emphasis on the question card */
 .map .pct{transition:filter .6s ease}
@@ -165,7 +166,6 @@ h1 em{font-style:normal;color:var(--hot)}
   <div class="legend" data-legend="result">
     <p class="lt">Predicted Aug–Sep high</p>
     <div class="rampwrap">
-      <span class="mark" style="left:51.0%">85°</span>
       <span class="mark" style="left:62.4%">90°</span>
       <div class="ramp" style="background:linear-gradient(90deg,#21a2d0 0% 10%,#76b4c0 10% 20%,#a3c7b0 20% 30%,#c8db9e 30% 40%,#eaef8a 40% 50%,#fde672 50% 60%,#ffc05b 60% 70%,#ff9745 70% 80%,#fb6b30 80% 90%,#f42e1c 90% 100%)"></div>
     </div>
@@ -180,7 +180,6 @@ h1 em{font-style:normal;color:var(--hot)}
   <div class="legend" data-legend="station-temps model">
     <p class="lt">Avg. Aug–Sep high</p>
     <div class="rampwrap">
-      <span class="mark" style="left:44.5%">85°</span>
       <span class="mark" style="left:58.0%">90°</span>
       <div class="ramp"></div>
     </div>
@@ -207,21 +206,15 @@ h1 em{font-style:normal;color:var(--hot)}
   </header>
 
   <div class="steps">
-    <section class="step" data-step="heat">
-      <article class="card">
-        <p class="eyebrow">The problem · 1 of 2</p>
-        <h2>Summer is the hard season</h2>
-        <p>Southern California summers get hot, and trail work is hard physical labor. As the Pacific Crest Trail Association's regional stewardship coordinator for 510 miles of trail, I had to cancel multiple volunteer projects over heat concerns.</p>
-        <p class="rule">My limit: no volunteer crew out above <b>90&nbsp;°F</b>, or above <b>85&nbsp;°F</b> without adequate shade.</p>
-      </article>
-    </section>
     <section class="step" data-step="question">
       <article class="card question">
-        <p class="eyebrow">The problem · 2 of 2</p>
-        <h2>Plans lock in two months out</h2>
+        <p class="eyebrow">The problem</p>
+        <h2>Summer is the hard season</h2>
+        <p>Southern California summers get hot, and trail work is hard physical labor. As the Pacific Crest Trail Association's regional stewardship coordinator for 510 miles of trail, I had to cancel multiple volunteer projects over heat concerns.</p>
+        <p class="rule">My limit: no volunteer crew out above <b>90&nbsp;°F</b>.</p>
+        <h2 class="h2b">Plans lock in two months out</h2>
         <p>Agency approvals, crew logistics, and volunteer recruitment add up to about two months. A late-August project gets locked in by late June, long before any forecast can say what that week will bring.</p>
         <p class="big">Which stretches of trail are most likely to have safe working weather in late summer?</p>
-        <p class="after">Answering that ahead of time lets project proposals and work plans for the year be locked in early.</p>
       </article>
     </section>
     <section class="step" data-step="stations">
