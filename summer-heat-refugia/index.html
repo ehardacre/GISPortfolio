@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summer Heat Refugia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Literata:opsz,wght@7..72,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the map stack is pinned behind the page; frames scroll over it and switch layers on and off. */
+:root{
+  --ink:#16282d;
+  --muted:#46606a;
+  --accent:#0f5e63;
+  --hot:#c2412d;
+  --sea:#b8f2fa;
+  --offwhite:#f6f6f2;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Literata",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--sea);color:var(--ink);font:400 17px/1.6 var(--body)}
+
+/* ---------- pinned map stack: every layer is the same 3168×2120 extent, cropped identically ---------- */
+.map{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;isolation:isolate;z-index:0}
+.map img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:30% 50%;display:block}
+.map .ebk{mix-blend-mode:multiply}
+.map .pct{filter:drop-shadow(0 0 1.5px rgba(22,40,45,.55))}
+/* swipe edge: the layers above it stay, below it are erased */
+.swipe{position:absolute;left:0;right:0;top:0;height:2px;background:var(--ink);z-index:5;will-change:transform;pointer-events:none}
+.legend{position:absolute;right:clamp(16px,3vw,32px);bottom:clamp(16px,3vw,32px);z-index:6;background:var(--offwhite);
+  border:1px solid rgba(22,40,45,.14);padding:12px 14px;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s}
+/* the incoming legend waits until the outgoing one has faded, so two never overlap */
+.legend.show{opacity:1;transform:none;transition:opacity .35s .22s,transform .35s .22s}
+.legend p{margin:0}
+.legend .lt{font:600 15px/1.2 var(--display);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.legend .rampwrap{position:relative;width:200px;padding-top:18px}
+.legend .ramp{height:12px;border:1px solid rgba(0,0,0,.6);background:linear-gradient(90deg,rgb(245,245,0) 0% 10%,rgb(245,218,0) 10% 20%,rgb(245,190,0) 20% 30%,rgb(245,163,0) 30% 40%,rgb(245,136,0) 40% 50%,rgb(245,109,0) 50% 60%,rgb(245,82,0) 60% 70%,rgb(245,54,0) 70% 80%,rgb(245,27,0) 80% 90%,rgb(245,0,0) 90% 100%)}
+.legend .mark{position:absolute;top:0;transform:translateX(-50%);font:500 11px/1 var(--mono);color:var(--ink)}
+.legend .mark::after{content:"";position:absolute;left:50%;top:13px;width:1.5px;height:19px;background:var(--ink)}
+.legend .ends{display:flex;justify-content:space-between;font:400 12px/1.6 var(--mono);color:var(--muted);margin-top:4px}
+.legend .li{display:flex;align-items:center;gap:8px;font:400 12.5px/1.6 var(--mono)}
+/* accuracy chart */
+.cv{position:relative;margin:6px 0 14px}
+.cvhead{font:500 11.5px/1.4 var(--mono);color:var(--muted);margin:0 0 10px}
+.cvrow{display:grid;grid-template-columns:minmax(0,1fr) 120px 42px;align-items:center;gap:10px;padding:4px 0;outline:none;cursor:default}
+.cvl{font:400 13.5px/1.25 var(--body)}
+.cvrow.best .cvl{font-weight:600}
+.cvt{height:12px;position:relative}
+.cvb{position:absolute;left:0;top:0;bottom:0;background:#a7b6b9;border-radius:0 4px 4px 0}
+.cvrow.best .cvb{background:var(--accent)}
+.cvv{font:500 13px/1 var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.cvrow:hover .cvl,.cvrow:focus-visible .cvl{text-decoration:underline;text-underline-offset:3px}
+.cvrow:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+.readout{font:400 12px/1.5 var(--mono);color:var(--muted);border-top:1px solid rgba(22,40,45,.15);padding-top:8px;margin:8px 0 0;min-height:3em}
+.readout b{color:var(--ink);font-weight:500}
+/* wide step: card above a full-width figure */
+.step.wide{flex-direction:column;align-items:stretch;justify-content:center;gap:18px;padding:80px 0 32px}
+.step.wide .card{align-self:flex-start}
+.strip{margin:0;background:#fff;border:1px solid rgba(22,40,45,.12);box-shadow:0 18px 40px -26px rgba(22,40,45,.55);padding:14px 16px 10px;overflow-x:auto}
+.strip img{display:block;width:100%;min-width:860px;height:auto}
+.strip figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;font:400 12px/1.5 var(--mono);color:var(--muted);margin-top:6px}
+.strip .inl{display:flex;align-items:center;gap:8px}
+.strip .inl i{display:inline-block;width:160px;height:10px;border:1px solid rgba(0,0,0,.6)}
+/* closing: card beside crew photos */
+.step.closing{display:grid;grid-template-columns:minmax(0,44ch) minmax(0,1fr);gap:24px;align-items:center;padding:80px 0 40px}
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0}
+.photos figure{margin:0;background:var(--offwhite);border:1px solid rgba(22,40,45,.12);padding:8px 8px 6px;box-shadow:0 18px 40px -26px rgba(22,40,45,.55)}
+.photos img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover}
+.photos figcaption{font:400 12px/1.5 var(--mono);color:var(--muted);padding-top:6px}
+.card .tools{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:14px 0 0}
+.card .tools li{font:400 12px/1.4 var(--mono);border:1px solid rgba(22,40,45,.2);padding:3px 8px}
+.endnote{padding:0 clamp(24px,6vw,96px) 48px;position:relative}
+.endnote p{display:inline-block;margin:0;background:var(--offwhite);border:1px solid rgba(22,40,45,.12);padding:10px 14px;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+@media (max-width:900px){.step.closing{grid-template-columns:1fr}.photos{grid-template-columns:1fr}}
+.frames{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh}
+
+/* ---------- top bar ---------- */
+.topbar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:12px clamp(16px,4vw,48px);background:var(--offwhite);border-bottom:1px solid rgba(22,40,45,.14);
+  transform:translateY(-100%);opacity:0;transition:transform .35s ease,opacity .35s ease}
+.topbar.show{transform:none;opacity:1}
+.topbar:not(.show){visibility:hidden;transition:transform .35s ease,opacity .35s ease,visibility 0s .35s}
+.topbar .who a{text-decoration:none}
+.topbar .who a:hover,.topbar .who a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+.topbar .t{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;text-transform:uppercase;letter-spacing:-.005em;margin:0}
+.topbar .t em{font-style:normal;color:var(--hot)}
+.topbar .who{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0;text-align:right}
+
+/* ---------- frame 1: title ---------- */
+.title{position:relative;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(24px,6vw,96px)}
+/* soft wash so type reads over the coastline; it scrolls away with the title */
+.title::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,rgba(184,242,250,.88) 0%,rgba(184,242,250,.6) 30%,rgba(184,242,250,0) 50%)}
+.title > *{position:relative}
+.title > .cue{position:absolute}
+
+.kicker{font:500 13px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 20px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(48px,7vw,108px);line-height:.92;letter-spacing:-.005em;
+  text-transform:uppercase;margin:0;max-width:8ch;text-wrap:balance}
+h1 em{font-style:normal;color:var(--hot)}
+.sub{font-family:var(--display);font-weight:500;font-size:clamp(22px,2.4vw,34px);line-height:1.1;letter-spacing:.06em;text-transform:uppercase;margin:14px 0 0;color:var(--ink)}
+.dek{font-size:clamp(17px,1.6vw,21px);line-height:1.5;color:var(--muted);max-width:36ch;margin:26px 0 0}
+.byline{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:34px;font:400 13px/1.4 var(--mono);color:var(--ink)}
+.byline span{border-top:2px solid var(--ink);padding-top:8px}
+
+.cue{left:clamp(24px,6vw,96px);bottom:28px;display:flex;align-items:center;gap:10px;
+  font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.cue svg{animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(5px)}}
+
+/* ---------- story steps: cards scroll over the pinned map ---------- */
+.steps{padding:0 clamp(24px,6vw,96px) 20vh}
+.step{min-height:100vh;min-height:100svh;display:flex;align-items:center}
+.card{background:var(--offwhite);border:1px solid rgba(22,40,45,.12);border-left:4px solid var(--accent);
+  padding:26px 28px;max-width:44ch;box-shadow:0 18px 40px -26px rgba(22,40,45,.55)}
+.card .eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+.card h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,3vw,40px);line-height:1;text-transform:uppercase;margin:0 0 14px;text-wrap:balance}
+.card p{margin:0 0 .9em}
+.card p:last-child{margin-bottom:0}
+.card .rule{font-family:var(--mono);font-size:14px;line-height:1.5;border-top:1px solid rgba(22,40,45,.15);padding-top:12px;margin-top:4px}
+.card .rule b{color:var(--hot);font-weight:500}
+.card.question{border-left-color:var(--hot);max-width:54ch}
+.card .h2b{margin-top:22px}
+.card.question .big{font-family:var(--display);font-weight:600;font-size:clamp(26px,2.4vw,32px);line-height:1.1;margin:18px 0 0;padding-top:16px;border-top:1px solid rgba(22,40,45,.15)}
+.card.question .after{color:var(--muted);border-top:1px solid rgba(22,40,45,.15);padding-top:14px}
+/* trail gets emphasis on the question card */
+.map .pct{transition:filter .6s ease}
+.map.trail-on .pct{filter:drop-shadow(0 0 1.5px rgba(22,40,45,.9)) drop-shadow(0 0 7px rgba(255,255,255,.95)) drop-shadow(0 0 14px rgba(194,65,45,.55))}
+
+@media (prefers-reduced-motion:reduce){.cue svg{animation:none}.topbar,.map .pct{transition:none}}
+@media (max-width:700px){
+  .map img{object-position:20% 50%}
+  .title::before{background:linear-gradient(180deg,rgba(184,242,250,.9) 0%,rgba(184,242,250,.7) 60%,rgba(184,242,250,.25) 100%)}
+  .topbar .t{font-size:21px}
+  .step{align-items:flex-end;padding-bottom:12vh}
+  .topbar .who{font-size:10.5px;letter-spacing:.1em}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <p class="t">Summer <em>heat refugia</em></p>
+  <p class="who"><a href="../index.html">GIS portfolio · Ethan Hardacre</a></p>
+</div>
+
+<div class="map" id="map" aria-hidden="true">
+  <img src="assets/hillshade.webp" alt="">
+  <img class="ebk" data-fade src="assets/ebk.webp" alt="">
+  <img class="ebk" data-reveal="accuracy" data-erase="result" src="assets/ebk-stderr.webp" alt="">
+  <img class="ebk" data-reveal="result" data-erase="closing" src="assets/ebk.webp" alt="">
+  <img src="assets/ocean.png" alt="">
+  <img class="pct" src="assets/pct.png" alt="">
+  <img data-fade src="assets/reference.png" alt="">
+  <img data-reveal="stations" data-erase="accuracy" src="assets/stations.png" alt="">
+  <img data-reveal="station-temps" data-erase="accuracy" src="assets/stations-tmax.png" alt="">
+  <div class="swipe" id="swipe"></div>
+  <div class="swipe" data-line="stations"></div>
+  <div class="swipe" data-line="station-temps"></div>
+  <div class="swipe" data-line="accuracy"></div>
+  <div class="swipe" data-line="result"></div>
+  <div class="swipe" data-line="closing"></div>
+  <div class="legend" data-legend="result">
+    <p class="lt">Predicted Aug–Sep high</p>
+    <div class="rampwrap">
+      <span class="mark" style="left:62.4%">90°</span>
+      <div class="ramp" style="background:linear-gradient(90deg,#21a2d0 0% 10%,#76b4c0 10% 20%,#a3c7b0 20% 30%,#c8db9e 30% 40%,#eaef8a 40% 50%,#fde672 50% 60%,#ffc05b 60% 70%,#ff9745 70% 80%,#fb6b30 80% 90%,#f42e1c 90% 100%)"></div>
+    </div>
+    <p class="ends"><span>63&nbsp;°F</span><span>107&nbsp;°F</span></p>
+  </div>
+  <div class="legend" data-legend="accuracy">
+    <p class="lt">Prediction standard error</p>
+    <div class="ramp" style="width:200px;background:linear-gradient(90deg,rgb(253, 240, 224) 0% 10%,rgb(247, 217, 198) 10% 20%,rgb(241, 193, 172) 20% 30%,rgb(236, 170, 145) 30% 40%,rgb(230, 147, 119) 40% 50%,rgb(224, 123, 97) 50% 60%,rgb(217, 100, 79) 60% 70%,rgb(210, 77, 62) 70% 80%,rgb(203, 53, 44) 80% 90%,rgb(196, 30, 26) 90% 100%)"></div>
+    <p class="ends" style="width:200px"><span>±0.8&nbsp;°F</span><span>±4.8&nbsp;°F</span></p>
+    <p class="ends" style="width:200px;margin-top:0"><span>more certain</span><span>less certain</span></p>
+  </div>
+  <div class="legend" data-legend="station-temps model">
+    <p class="lt">Avg. Aug–Sep high</p>
+    <div class="rampwrap">
+      <span class="mark" style="left:58.0%">90°</span>
+      <div class="ramp"></div>
+    </div>
+    <p class="ends"><span>69&nbsp;°F</span><span>105&nbsp;°F</span></p>
+  </div>
+  <div class="legend" data-legend="stations">
+    <p class="lt">Weather stations</p>
+    <p class="li"><svg width="16" height="14" viewBox="0 0 16 14"><path d="M8 1L15 13H1Z" fill="#ff5500" stroke="#000" stroke-width="1"/></svg>GHCN-Daily</p>
+    <p class="li"><svg width="16" height="14" viewBox="0 0 16 14"><path d="M8 1L15 13H1Z" fill="#e6e600" stroke="#000" stroke-width="1"/></svg>RAWS</p>
+  </div>
+</div>
+
+<main class="frames">
+  <header class="title" id="title">
+    <p class="kicker">GIS portfolio · Ethan Hardacre</p>
+    <h1 id="h1">Summer <em>heat refugia</em></h1>
+    <p class="sub">in the Southern California mountains</p>
+    <p class="dek">Where can trail crews safely work in late summer? Interpolating August–September maximum temperature across the ranges of the Pacific Crest Trail.</p>
+    <div class="byline"><span>Empirical Bayesian kriging</span><span>ArcGIS Pro</span><span>Pacific Crest Trail Association</span></div>
+    <div class="cue" aria-hidden="true">
+      <svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 1v15M1 10l6 6 6-6"/></svg>
+      Scroll
+    </div>
+  </header>
+
+  <div class="steps">
+    <section class="step" data-step="question">
+      <article class="card question">
+        <p class="eyebrow">The problem</p>
+        <h2>Summer is the hard season</h2>
+        <p>Southern California summers get hot, and trail work is hard physical labor. As the Pacific Crest Trail Association's regional stewardship coordinator for 510 miles of trail, I had to cancel multiple volunteer projects over heat concerns.</p>
+        <p class="rule">My limit: no volunteer crew out above <b>90&nbsp;°F</b>.</p>
+        <h2 class="h2b">Plans lock in two months out</h2>
+        <p>Agency approvals, crew logistics, and volunteer recruitment add up to about two months. A late-August project gets locked in by late June, long before any forecast can say what that week will bring.</p>
+        <p class="big">Which stretches of trail are most likely to have safe working weather in late summer?</p>
+      </article>
+    </section>
+    <section class="step" data-step="stations">
+      <article class="card">
+        <p class="eyebrow">The data</p>
+        <h2>Weather stations</h2>
+        <p>The analysis starts from point measurements: daily maximum temperatures from two station networks. <b>GHCN-Daily</b> stations cluster around towns and valleys. <b>RAWS</b> fire-weather stations reach into remote wildland terrain, closer to where the trail runs.</p>
+        <p>Each station's 2011–2026 record was averaged into a single number, its typical August–September high, the value every method in this project works from.</p>
+      </article>
+    </section>
+    <section class="step" data-step="station-temps">
+      <article class="card">
+        <p class="eyebrow">The data</p>
+        <h2>One number per station</h2>
+        <p>Colored by average August–September high, the stations start to show the pattern: the hottest readings sit inland and toward the desert, the coolest along the coast and up high.</p>
+        <p>But it's still just scattered points. The trail runs through the gaps between them, and that's where the estimating has to happen.</p>
+      </article>
+    </section>
+    <section class="step" data-step="model">
+      <article class="card">
+        <p class="eyebrow">Methods · The model</p>
+        <h2>Elevation and the coast</h2>
+        <p>EBK Regression Prediction combines kriging with a regression on two predictors mapped across the whole region: <b>elevation</b>, because air cools with height, and <b>distance to the coast</b>, because the marine layer keeps coastal lowlands cool while inland basins bake.</p>
+        <p>Neither works alone. Across all stations, elevation barely predicts the late-summer high, because cool coastal lowlands and hot desert floors sit at similar heights. Together, the two explain the pattern between stations.</p>
+      </article>
+    </section>
+    <section class="step" data-step="accuracy">
+      <article class="card">
+        <p class="eyebrow">Methods · Accuracy</p>
+        <h2>The error drops 44%</h2>
+        <p>In cross-validation, which predicts each station from all the others, its root-mean-square error (RMSE) was 2.6&nbsp;°F, 44% below IDW's 4.7&nbsp;°F.</p>
+        <div class="cv" id="cv">
+          <p class="cvhead">RMSE, °F · shorter is better</p>
+          <div class="cvrow" tabindex="0" data-c="2.596" data-me="-0.177">
+            <span class="cvl">IDW</span><span class="cvt"><span class="cvb" style="width:100.0%"></span></span><span class="cvv">4.7°</span>
+          </div>
+          <div class="cvrow" tabindex="0" data-c="2.305" data-me="-0.051">
+            <span class="cvl">Ordinary kriging</span><span class="cvt"><span class="cvb" style="width:88.8%"></span></span><span class="cvv">4.1°</span>
+          </div>
+          <div class="cvrow" tabindex="0" data-c="2.356" data-me="-0.042">
+            <span class="cvl">EBK, no covariates</span><span class="cvt"><span class="cvb" style="width:90.8%"></span></span><span class="cvv">4.2°</span>
+          </div>
+          <div class="cvrow" tabindex="0" data-c="1.815" data-me="+0.002">
+            <span class="cvl">Regression only</span><span class="cvt"><span class="cvb" style="width:69.9%"></span></span><span class="cvv">3.3°</span>
+          </div>
+          <div class="cvrow best" tabindex="0" data-c="1.453" data-me="-0.012">
+            <span class="cvl">EBK Regression Prediction</span><span class="cvt"><span class="cvb" style="width:56.0%"></span></span><span class="cvv">2.6°</span>
+          </div>
+          <p class="readout" id="cvtip" aria-live="polite"></p>
+        </div>
+        <p>Regression alone beat every interpolation method; kriging its leftovers cut RMSE another 20%. The map shows standard error, lowest near stations.</p>
+      </article>
+    </section>
+    <section class="step" data-step="result">
+      <article class="card">
+        <p class="eyebrow">The result</p>
+        <h2>The late-summer heat map</h2>
+        <p>The final EBK Regression surface predicts the average August–September high for every point in the region, including every mile of trail.</p>
+        <p>The trail's coolest ground is in the high country of the San Gabriel, San Bernardino and San Jacinto mountains.</p>
+      </article>
+    </section>
+    <section class="step wide" data-step="planning">
+      <article class="card">
+        <p class="eyebrow">The answer</p>
+        <h2>The trail, mile by mile</h2>
+        <p>Sampled along the centerline, the surface becomes a planning tool: every mile from the Southern Terminus to mile 550, with the road crossings crews use to reach the work.</p>
+        <p>The coolest late-summer stretches run through the San Jacinto high country, past Onyx Summit in the San Bernardinos, and along Highway 2 in the San Gabriels. The hottest sit at the low crossings: Scissors Crossing, I-10, and the miles around Agua Dulce and Pine Canyon Road.</p>
+      </article>
+      <figure class="strip">
+        <img src="assets/trail-strip.png" alt="Pacific Crest Trail from the Southern Terminus to mile 550, colored by predicted August–September high, with landmarks and road crossings labeled">
+        <figcaption><span>Predicted Aug–Sep high along the PCT centerline · miles from the Southern Terminus</span><span class="inl">63&nbsp;°F <i style="background:linear-gradient(90deg,#21a2d0 0% 10%,#76b4c0 10% 20%,#a3c7b0 20% 30%,#c8db9e 30% 40%,#eaef8a 40% 50%,#fde672 50% 60%,#ffc05b 60% 70%,#ff9745 70% 80%,#fb6b30 80% 90%,#f42e1c 90% 100%)"></i> 107&nbsp;°F</span></figcaption>
+      </figure>
+    </section>
+    <section class="step closing" data-step="closing">
+      <article class="card">
+        <p class="eyebrow">On the ground</p>
+        <h2>From the map to the trail</h2>
+        <p>The point of all this is the people doing the work. With a year-round picture of late-summer heat, project proposals and work plans can be locked in early, with volunteer crews scheduled on the stretches where the weather is most likely to cooperate.</p>
+        <ul class="tools" aria-label="Tools and data">
+          <li>ArcGIS Pro</li><li>Geostatistical Analyst</li><li>EBK Regression Prediction</li><li>ArcGIS Notebooks · Python</li><li>GHCN-Daily</li><li>RAWS</li>
+        </ul>
+      </article>
+      <div class="photos">
+        <figure><img src="assets/crew-1.webp" alt="Volunteer trail crew in hard hats with tools on a rocky mountain trail, clouds in the valley behind them" loading="lazy"><figcaption>Pacific Crest Trail Association volunteer crew</figcaption></figure>
+        <figure><img src="assets/crew-2.webp" alt="Volunteer trail crew posing behind a newly built rock gabion wall in a pine forest, with a Work Crew Caution sign" loading="lazy"><figcaption>Pacific Crest Trail Association volunteer crew</figcaption></figure>
+      </div>
+    </section>
+  </div>
+  <footer class="endnote"><p>GIS portfolio · Ethan Hardacre</p></footer>
+</main>
+
+<script>
+// Top bar appears once the big title has scrolled off the top.
+const bar = document.getElementById("topbar");
+new IntersectionObserver(([e]) => bar.classList.toggle("show", !e.isIntersecting && e.boundingClientRect.top < 0))
+  .observe(document.getElementById("h1"));
+
+// Swipe: the EBK and reference layers are cut off at the bottom edge of the title frame,
+// so a solid line rides up the screen with the scroll and erases them.
+const swiped = document.querySelectorAll("[data-fade]");
+const title = document.getElementById("title"), swipe = document.getElementById("swipe");
+let ticking = false;
+function update() {
+  ticking = false;
+  const vh = innerHeight, edge = Math.min(vh, Math.max(0, title.getBoundingClientRect().bottom));
+  const clip = `inset(0 0 ${vh - edge}px 0)`;
+  swiped.forEach(el => { el.style.clipPath = clip; el.style.webkitClipPath = clip; });
+  swipe.style.transform = `translateY(${edge - 1}px)`;
+  swipe.style.opacity = edge > 0 && edge < vh ? 1 : 0;
+}
+addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, {passive: true});
+addEventListener("resize", update);
+
+// Reveal: a layer appears below a line that rides up with its step's top edge.
+// A layer can also be erased by a later step: it stays visible only above that step's line.
+const stepTop = name => document.querySelector(`[data-step="${name}"]`);
+const reveals = [...document.querySelectorAll("[data-reveal]")].map(img => ({
+  img, step: stepTop(img.dataset.reveal), erase: img.dataset.erase ? stepTop(img.dataset.erase) : null,
+  line: document.querySelector(`[data-line="${img.dataset.reveal}"]`)}));
+const edgeOf = (el, vh) => Math.min(vh, Math.max(0, el.getBoundingClientRect().top));
+function updateReveals() {
+  const vh = innerHeight;
+  reveals.forEach(({img, step, erase, line}) => {
+    const edge = edgeOf(step, vh), cut = erase ? edgeOf(erase, vh) : vh;
+    const clip = `inset(${edge}px 0 ${Math.min(vh - edge, vh - cut)}px 0)`;
+    img.style.clipPath = clip; img.style.webkitClipPath = clip;
+    line.style.transform = `translateY(${edge - 1}px)`;
+    line.style.opacity = edge > 0 && edge < vh ? 1 : 0;
+  });
+}
+addEventListener("scroll", () => requestAnimationFrame(updateReveals), {passive: true});
+addEventListener("resize", updateReveals);
+updateReveals();
+
+// Step-driven state is computed from scroll position: only the step crossing the middle of the
+// screen is "active". (IntersectionObserver margins are ignored inside the embedded viewer, which let
+// two steps count as active at once.)
+const legends = [...document.querySelectorAll("[data-legend]")].map(leg => ({leg, steps: leg.dataset.legend.split(" ").map(n => document.querySelector(`[data-step="${n}"]`))}));
+const qStep = document.querySelector('[data-step="question"]'), mapNode = document.getElementById("map");
+const atCenter = el => { const r = el.getBoundingClientRect(), c = innerHeight / 2; return r.top <= c && r.bottom > c; };
+function updateSteps() {
+  legends.forEach(({leg, steps}) => leg.classList.toggle("show", steps.some(atCenter)));
+  mapNode.classList.toggle("trail-on", atCenter(qStep));
+}
+addEventListener("scroll", () => requestAnimationFrame(updateSteps), {passive: true});
+addEventListener("resize", updateSteps);
+updateSteps();
+
+
+update();
+// Accuracy chart readout: shows the hovered/focused method, defaults to the best one.
+const cv = document.getElementById("cv"), readout = document.getElementById("cvtip");
+const rowsCv = [...cv.querySelectorAll(".cvrow")];
+const say = row => { const c = +row.dataset.c;
+  const me = +row.dataset.me * 1.8;
+  readout.innerHTML = `<b>${row.querySelector(".cvl").textContent}</b><br>RMSE ${(c * 1.8).toFixed(1)} °F (${c.toFixed(2)} °C) · mean error ${me >= 0 ? "+" : "−"}${Math.abs(me).toFixed(2)} °F`; };
+const best = rowsCv[rowsCv.length - 1];
+rowsCv.forEach(row => {
+  row.addEventListener("mouseenter", () => say(row)); row.addEventListener("focus", () => say(row));
+  row.addEventListener("mouseleave", () => say(best)); row.addEventListener("blur", () => say(best));
+});
+say(best);
+</script>
+</body>
+</html>

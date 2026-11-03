@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartograph: Local Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the illustrated map is pinned full-screen; each card scrolls in and the camera flies to the detail it describes. Colors come from the map's own two inks. */
+:root{
+  --paper:#fdf6e4;      /* the map's cream */
+  --ink:#003842;        /* the map's deep teal */
+  --muted:#4c6a70;
+  --peach:#e8a882;      /* the map's warm ink */
+  --card:#fffbf2;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Literata",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--body)}
+a{color:inherit}
+
+/* top bar */
+.topbar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:12px clamp(16px,4vw,48px);background:var(--card);border-bottom:1px solid rgba(0,56,66,.15)}
+.topbar .t{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;text-transform:uppercase;margin:0}
+.topbar .t em{font-style:normal;color:#c26a45}
+.topbar .who{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:0;text-align:right}
+.topbar .who a{text-decoration:none}
+.topbar .who a:hover,.topbar .who a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+/* pinned map with a camera */
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;z-index:0;background:var(--paper)}
+.cam{position:absolute;left:0;top:0;width:6048px;height:2304px;transform-origin:0 0;will-change:transform;
+  transition:transform 1.2s cubic-bezier(.65,0,.35,1)}
+.cam img{display:block;width:6048px;height:2304px;max-width:none}
+.steps{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh;padding:0 clamp(16px,6vw,96px) 30vh}
+.step{min-height:100vh;min-height:100svh;display:flex;align-items:center;padding-top:60px}
+
+.card{background:var(--card);border:1px solid rgba(0,56,66,.15);border-left:4px solid var(--ink);
+  padding:24px 28px;max-width:42ch;box-shadow:0 18px 40px -26px rgba(0,56,66,.55)}
+.card .eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.card h1,.card h2{font-family:var(--display);font-weight:700;line-height:.95;text-transform:uppercase;margin:0 0 14px;text-wrap:balance}
+.card h1{font-size:clamp(38px,4vw,56px)}
+.card h1 em{font-style:normal;color:#c26a45;display:block}
+.card h2{font-size:clamp(28px,2.8vw,38px)}
+.card p{margin:0 0 .9em}
+.card p:last-child{margin-bottom:0}
+.card .quote{font-style:italic;border-left:2px solid var(--peach);padding-left:14px}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 12.5px/1.4 var(--mono);margin-top:16px}
+.card .meta span{border-top:2px solid var(--ink);padding-top:6px}
+.cue{display:flex;align-items:center;gap:8px;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px}
+.cue svg{animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+.endnote{position:relative;z-index:1;padding:0 clamp(16px,6vw,96px) 48px}
+.endnote a{display:inline-block;background:var(--card);border:1px solid rgba(0,56,66,.15);padding:10px 14px;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
+.endnote a:hover,.endnote a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+@media (prefers-reduced-motion:reduce){.cam{transition:none}.cue svg{animation:none}}
+@media (max-width:860px){
+  .topbar .t{font-size:20px}
+  .topbar .who{font-size:10.5px;letter-spacing:.1em}
+  .step{align-items:flex-end;padding-bottom:6vh}
+  .card{padding:18px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <p class="t">Cartograph: <em>Local Expert</em></p>
+  <p class="who"><a href="../index.html">GIS portfolio · Ethan Hardacre</a></p>
+</div>
+
+<div class="stage" aria-hidden="true">
+  <div class="cam" id="cam"><img src="assets/map.webp" alt="" width="6048" height="2304"></div>
+</div>
+
+<main class="steps">
+  <!-- data-box: the part of the map (in image pixels: left, top, right, bottom) the camera frames for this card -->
+  <section class="step" data-box="0 0 6048 2304">
+    <article class="card">
+      <p class="eyebrow">Illustrated cartography · Trails Magazine</p>
+      <h1>Cartograph: <em>Local Expert</em></h1>
+      <p>A hand-drawn map of the Tahoe Rim Trail from Tahoe Meadows to Spooner Summit, built around a story about the volunteer who has looked after it for decades.</p>
+      <div class="meta"><span>Illustration</span><span>Cartography</span><span>Writing</span></div>
+      <div class="cue" aria-hidden="true"><svg width="12" height="16" viewBox="0 0 14 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 1v15M1 10l6 6 6-6"/></svg>Scroll to explore</div>
+    </article>
+  </section>
+
+  <section class="step" data-box="300 330 4450 2000">
+    <article class="card">
+      <p class="eyebrow">The section</p>
+      <h2>Bob's 24 miles</h2>
+      <p>Bob Anderson has volunteered on the Tahoe Rim Trail for 25 years. For more than two of those decades he has overseen maintenance on these 24 miles of the trail's east side.</p>
+      <p>The map follows his section as a white ribbon with numbered mile markers, running along the Carson Range above the lake.</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="550 480 1750 1250">
+    <article class="card">
+      <p class="eyebrow">North end</p>
+      <h2>Tahoe Meadows</h2>
+      <p>The section starts at Tahoe Meadows, an ancestral Washoe passage. A pair of chickadees marks Chickadee Ridge just above it.</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="2350 430 3450 1300">
+    <article class="card">
+      <p class="eyebrow">The middle miles</p>
+      <h2>Around Marlette Peak</h2>
+      <p>I joined Bob between Marlette Peak Campground and Christopher's Loop. As we rounded Marlette Peak, he stepped into the tall grass and showed me a coiled telegraph wire from the 19th century, declared an archaeological site when the trail was built.</p>
+      <p>Below the peak, Marlette Lake sits inside Lake Tahoe Nevada State Park.</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="2250 0 4050 900">
+    <article class="card">
+      <p class="eyebrow">Orientation</p>
+      <h2>Looking east</h2>
+      <p>The map looks east from the lake, so north runs to the left and south to the right. The sun rises over the Carson Range, with Carson City off in the valley beyond.</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="3700 330 4450 1500">
+    <article class="card">
+      <p class="eyebrow">South end</p>
+      <h2>Spooner Summit</h2>
+      <p>The section ends at Spooner Summit on Highway 50, once a railroad line that hauled timber across the Carson Range.</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="1150 1150 2950 1960">
+    <article class="card">
+      <p class="eyebrow">Below the trail</p>
+      <h2>Lake Tahoe</h2>
+      <p>The lake fills the foreground, with Incline Village and Highway 28 tracing the shore below the ridgeline the trail follows.</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="0 1150 900 2110">
+    <article class="card">
+      <p class="eyebrow">The border</p>
+      <h2>Trees of the basin</h2>
+      <p>The frame names the conifers along the trail: sugar pine and western white pine on the left, ponderosa and lodgepole pine on the right.</p>
+      <p class="quote">When we left the high meadow for a stand of withering lodgepole, Bob stopped again. "They were all alive five years ago."</p>
+    </article>
+  </section>
+
+  <section class="step" data-box="0 0 6048 2304">
+    <article class="card">
+      <p class="eyebrow">The full spread</p>
+      <h2>A map that tells a story</h2>
+      <p>It took hours to cover just a few miles. For Bob, this section of the trail is more than 24 miles and pretty views; it's living, breathing, and ever-changing. The map tries to hold all of it at once: history, ecology, and lore.</p>
+    </article>
+  </section>
+</main>
+
+<footer class="endnote"><a href="../index.html">← GIS portfolio · Ethan Hardacre</a></footer>
+
+<script>
+// Camera: fit the active card's box into the open part of the screen.
+const IMG_W = 6048, IMG_H = 2304;
+const cam = document.getElementById("cam");
+const steps = [...document.querySelectorAll(".step")];
+let current = -1;
+function frame(i) {
+  const [x0, y0, x1, y1] = steps[i].dataset.box.split(" ").map(Number);
+  const vw = innerWidth, vh = innerHeight, wide = vw > 860;
+  const card = steps[i].querySelector(".card").getBoundingClientRect();
+  // open area: right of the card on wide screens, above it on narrow ones
+  const top = 64, pad = 20;
+  const a = wide ? {l: card.right + pad, r: vw - pad, t: top + pad, b: vh - pad}
+                 : {l: pad, r: vw - pad, t: top + pad, b: Math.max(top + 160, vh * 0.42)};
+  const k = Math.min((a.r - a.l) / (x1 - x0), (a.b - a.t) / (y1 - y0));
+  const tx = (a.l + a.r) / 2 - (x0 + x1) / 2 * k, ty = (a.t + a.b) / 2 - (y0 + y1) / 2 * k;
+  cam.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
+}
+function update() {
+  const c = innerHeight / 2;
+  const i = steps.findIndex(s => { const r = s.getBoundingClientRect(); return r.top <= c && r.bottom > c; });
+  const next = i < 0 ? (scrollY < 10 ? 0 : current) : i;
+  if (next !== current && next >= 0) { current = next; frame(current); }
+}
+addEventListener("scroll", () => requestAnimationFrame(update), {passive: true});
+addEventListener("resize", () => current >= 0 && frame(current));
+update();
+</script>
+</body>
+</html>
