@@ -167,7 +167,7 @@ h1 em{font-style:normal;color:var(--hot)}
   <div class="swipe" data-line="result"></div>
   <div class="swipe" data-line="closing"></div>
   <div class="legend" data-legend="result">
-    <p class="lt">Predicted Aug–Sep high</p>
+    <p class="lt">Predicted Jul–Aug high</p>
     <div class="rampwrap">
       <span class="mark" style="left:62.4%">90°</span>
       <div class="ramp" style="background:linear-gradient(90deg,#21a2d0 0% 10%,#76b4c0 10% 20%,#a3c7b0 20% 30%,#c8db9e 30% 40%,#eaef8a 40% 50%,#fde672 50% 60%,#ffc05b 60% 70%,#ff9745 70% 80%,#fb6b30 80% 90%,#f42e1c 90% 100%)"></div>
@@ -181,7 +181,7 @@ h1 em{font-style:normal;color:var(--hot)}
     <p class="ends" style="width:200px;margin-top:0"><span>more certain</span><span>less certain</span></p>
   </div>
   <div class="legend" data-legend="station-temps model">
-    <p class="lt">Avg. Aug–Sep high</p>
+    <p class="lt">Avg. Jul–Aug high</p>
     <div class="rampwrap">
       <span class="mark" style="left:58.0%">90°</span>
       <div class="ramp"></div>
@@ -200,7 +200,7 @@ h1 em{font-style:normal;color:var(--hot)}
     <p class="kicker">GIS portfolio · Ethan Hardacre</p>
     <h1 id="h1">Summer <em>heat refugia</em></h1>
     <p class="sub">in the Southern California mountains</p>
-    <p class="dek">Where can trail crews safely work in late summer? Interpolating August–September maximum temperature across the ranges of the Pacific Crest Trail.</p>
+    <p class="dek">Where can trail crews safely work in late summer? Interpolating July–August maximum temperature across the ranges of the Pacific Crest Trail.</p>
     <div class="byline"><span>Empirical Bayesian kriging</span><span>ArcGIS Pro</span><span>Pacific Crest Trail Association</span></div>
     <div class="cue" aria-hidden="true">
       <svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 1v15M1 10l6 6 6-6"/></svg>
@@ -225,14 +225,14 @@ h1 em{font-style:normal;color:var(--hot)}
         <p class="eyebrow">The data</p>
         <h2>Weather stations</h2>
         <p>The analysis starts from point measurements: daily maximum temperatures from two station networks. <b>GHCN-Daily</b> stations cluster around towns and valleys. <b>RAWS</b> fire-weather stations reach into remote wildland terrain, closer to where the trail runs.</p>
-        <p>Each station's 2011–2026 record was averaged into a single number, its typical August–September high, the value every method in this project works from.</p>
+        <p>Each station's 2011–2026 record was averaged into a single number, its typical July–August high, the value every method in this project works from.</p>
       </article>
     </section>
     <section class="step" data-step="station-temps">
       <article class="card">
         <p class="eyebrow">The data</p>
         <h2>One number per station</h2>
-        <p>Colored by average August–September high, the stations start to show the pattern: the hottest readings sit inland and toward the desert, the coolest along the coast and up high.</p>
+        <p>Colored by average July–August high, the stations start to show the pattern: the hottest readings sit inland and toward the desert, the coolest along the coast and up high.</p>
         <p>But it's still just scattered points. The trail runs through the gaps between them, and that's where the estimating has to happen.</p>
       </article>
     </section>
@@ -275,7 +275,7 @@ h1 em{font-style:normal;color:var(--hot)}
       <article class="card">
         <p class="eyebrow">The result</p>
         <h2>The late-summer heat map</h2>
-        <p>The final EBK Regression surface predicts the average August–September high for every point in the region, including every mile of trail.</p>
+        <p>The final EBK Regression surface predicts the average July–August high for every point in the region, including every mile of trail.</p>
         <p>The trail's coolest ground is in the high country of the San Gabriel, San Bernardino and San Jacinto mountains.</p>
       </article>
     </section>
@@ -287,8 +287,8 @@ h1 em{font-style:normal;color:var(--hot)}
         <p>The coolest late-summer stretches run through the San Jacinto high country, past Onyx Summit in the San Bernardinos, and along Highway 2 in the San Gabriels. The hottest sit at the low crossings: Scissors Crossing, I-10, and the miles around Agua Dulce and Pine Canyon Road.</p>
       </article>
       <figure class="strip">
-        <img src="assets/trail-strip.png" alt="Pacific Crest Trail from the Southern Terminus to mile 550, colored by predicted August–September high, with landmarks and road crossings labeled">
-        <figcaption><span>Predicted Aug–Sep high along the PCT centerline · miles from the Southern Terminus</span><span class="inl">63&nbsp;°F <i style="background:linear-gradient(90deg,#21a2d0 0% 10%,#76b4c0 10% 20%,#a3c7b0 20% 30%,#c8db9e 30% 40%,#eaef8a 40% 50%,#fde672 50% 60%,#ffc05b 60% 70%,#ff9745 70% 80%,#fb6b30 80% 90%,#f42e1c 90% 100%)"></i> 107&nbsp;°F</span></figcaption>
+        <img src="assets/trail-strip.png" alt="Pacific Crest Trail from the Southern Terminus to mile 550, colored by predicted July–August high, with landmarks and road crossings labeled">
+        <figcaption><span>Predicted Jul–Aug high along the PCT centerline · miles from the Southern Terminus</span><span class="inl">63&nbsp;°F <i style="background:linear-gradient(90deg,#21a2d0 0% 10%,#76b4c0 10% 20%,#a3c7b0 20% 30%,#c8db9e 30% 40%,#eaef8a 40% 50%,#fde672 50% 60%,#ffc05b 60% 70%,#ff9745 70% 80%,#fb6b30 80% 90%,#f42e1c 90% 100%)"></i> 107&nbsp;°F</span></figcaption>
       </figure>
     </section>
     <section class="step closing" data-step="closing">
