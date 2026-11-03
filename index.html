@@ -123,7 +123,7 @@ h1 em{font-style:normal;color:var(--hot)}
 .card .rule{font-family:var(--mono);font-size:14px;line-height:1.5;border-top:1px solid rgba(22,40,45,.15);padding-top:12px;margin-top:4px}
 .card .rule b{color:var(--hot);font-weight:500}
 .card.question{border-left-color:var(--hot)}
-.card.question .big{font-family:var(--display);font-weight:600;font-size:clamp(28px,2.8vw,38px);line-height:1.1;margin:0 0 16px}
+.card.question .big{font-family:var(--display);font-weight:600;font-size:clamp(26px,2.4vw,32px);line-height:1.1;margin:18px 0 14px;padding-top:16px;border-top:1px solid rgba(22,40,45,.15)}
 .card.question .after{color:var(--muted);border-top:1px solid rgba(22,40,45,.15);padding-top:14px}
 /* trail gets emphasis on the question card */
 .map .pct{transition:filter .6s ease}
@@ -172,11 +172,12 @@ h1 em{font-style:normal;color:var(--hot)}
     <p class="ends"><span>63&nbsp;°F</span><span>107&nbsp;°F</span></p>
   </div>
   <div class="legend" data-legend="accuracy">
-    <p class="lt">EBK prediction standard error</p>
-    <div class="ramp" style="width:200px;background:linear-gradient(90deg,#fdf0e0,#f2c3a0,#e3876a,#d14f3a,#c41e1a)"></div>
-    <p class="ends" style="width:200px"><span>More certain</span><span>Less certain</span></p>
+    <p class="lt">Prediction standard error</p>
+    <div class="ramp" style="width:200px;background:linear-gradient(90deg,rgb(253, 240, 224) 0% 10%,rgb(247, 217, 198) 10% 20%,rgb(241, 193, 172) 20% 30%,rgb(236, 170, 145) 30% 40%,rgb(230, 147, 119) 40% 50%,rgb(224, 123, 97) 50% 60%,rgb(217, 100, 79) 60% 70%,rgb(210, 77, 62) 70% 80%,rgb(203, 53, 44) 80% 90%,rgb(196, 30, 26) 90% 100%)"></div>
+    <p class="ends" style="width:200px"><span>±0.8&nbsp;°F</span><span>±4.8&nbsp;°F</span></p>
+    <p class="ends" style="width:200px;margin-top:0"><span>more certain</span><span>less certain</span></p>
   </div>
-  <div class="legend" data-legend="station-temps">
+  <div class="legend" data-legend="station-temps model">
     <p class="lt">Avg. Aug–Sep high</p>
     <div class="rampwrap">
       <span class="mark" style="left:44.5%">85°</span>
@@ -197,7 +198,7 @@ h1 em{font-style:normal;color:var(--hot)}
     <p class="kicker">GIS portfolio · Ethan Hardacre</p>
     <h1 id="h1">Summer <em>heat refugia</em></h1>
     <p class="sub">in the Southern California mountains</p>
-    <p class="dek">Where can trail crews safely work in July? Interpolating summer maximum temperature across the ranges of the Pacific Crest Trail.</p>
+    <p class="dek">Where can trail crews safely work in late summer? Interpolating August–September maximum temperature across the ranges of the Pacific Crest Trail.</p>
     <div class="byline"><span>Empirical Bayesian kriging</span><span>ArcGIS Pro</span><span>Pacific Crest Trail Association</span></div>
     <div class="cue" aria-hidden="true">
       <svg width="14" height="18" viewBox="0 0 14 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 1v15M1 10l6 6 6-6"/></svg>
@@ -208,25 +209,19 @@ h1 em{font-style:normal;color:var(--hot)}
   <div class="steps">
     <section class="step" data-step="heat">
       <article class="card">
-        <p class="eyebrow">The problem · 1 of 3</p>
+        <p class="eyebrow">The problem · 1 of 2</p>
         <h2>Summer is the hard season</h2>
         <p>Southern California summers get hot, and trail work is hard physical labor. As the Pacific Crest Trail Association's regional stewardship coordinator for 510 miles of trail, I had to cancel multiple volunteer projects over heat concerns.</p>
         <p class="rule">My limit: no volunteer crew out above <b>90&nbsp;°F</b>, or above <b>85&nbsp;°F</b> without adequate shade.</p>
       </article>
     </section>
-    <section class="step" data-step="lead">
-      <article class="card">
-        <p class="eyebrow">The problem · 2 of 3</p>
-        <h2>Plans lock in two months out</h2>
-        <p>A project on public land can't start whenever the weather looks good. Agency approvals, crew logistics, and enough time to recruit volunteers add up to about two months.</p>
-        <p>The location for a July project gets chosen in May, long before any forecast can say what July will bring.</p>
-      </article>
-    </section>
     <section class="step" data-step="question">
       <article class="card question">
-        <p class="eyebrow">The problem · 3 of 3</p>
+        <p class="eyebrow">The problem · 2 of 2</p>
+        <h2>Plans lock in two months out</h2>
+        <p>Agency approvals, crew logistics, and volunteer recruitment add up to about two months. A late-August project gets locked in by late June, long before any forecast can say what that week will bring.</p>
         <p class="big">Which stretches of trail are most likely to have safe working weather in late summer?</p>
-        <p class="after">Having this information year round will allow us to lock in project proposals and work plans for the year with plenty of time to get agency approval and recruit volunteers.</p>
+        <p class="after">Answering that ahead of time lets project proposals and work plans for the year be locked in early.</p>
       </article>
     </section>
     <section class="step" data-step="stations">
@@ -234,7 +229,7 @@ h1 em{font-style:normal;color:var(--hot)}
         <p class="eyebrow">The data</p>
         <h2>Weather stations</h2>
         <p>The analysis starts from point measurements: daily maximum temperatures from two station networks. <b>GHCN-Daily</b> stations cluster around towns and valleys. <b>RAWS</b> fire-weather stations reach into remote wildland terrain, closer to where the trail runs.</p>
-        <p>Each station's record was averaged into a single number, its typical August–September high, the value every method in this project works from.</p>
+        <p>Each station's 2011–2026 record was averaged into a single number, its typical August–September high, the value every method in this project works from.</p>
       </article>
     </section>
     <section class="step" data-step="station-temps">
@@ -245,11 +240,19 @@ h1 em{font-style:normal;color:var(--hot)}
         <p>But it's still just scattered points. The trail runs through the gaps between them, and that's where the estimating has to happen.</p>
       </article>
     </section>
+    <section class="step" data-step="model">
+      <article class="card">
+        <p class="eyebrow">Methods · The model</p>
+        <h2>Elevation and the coast</h2>
+        <p>EBK Regression Prediction combines kriging with a regression on two predictors mapped across the whole region: <b>elevation</b>, because air cools with height, and <b>distance to the coast</b>, because the marine layer keeps coastal lowlands cool while inland basins bake.</p>
+        <p>Neither works alone. Across all stations, elevation barely predicts the late-summer high, because cool coastal lowlands and hot desert floors sit at similar heights. Together, the two explain the pattern between stations.</p>
+      </article>
+    </section>
     <section class="step" data-step="accuracy">
       <article class="card">
         <p class="eyebrow">Methods · Accuracy</p>
-        <h2>Covariates nearly halve the error</h2>
-        <p>Cross-validation hides each station in turn and predicts it from the rest. EBK Regression Prediction missed by 2.6&nbsp;°F on average, 44% less than IDW.</p>
+        <h2>The error drops 44%</h2>
+        <p>In cross-validation, which predicts each station from all the others, its root-mean-square error (RMSE) was 2.6&nbsp;°F, 44% below IDW's 4.7&nbsp;°F.</p>
         <div class="cv" id="cv">
           <p class="cvhead">RMSE, °F · shorter is better</p>
           <div class="cvrow" tabindex="0" data-c="2.596" data-me="-0.177">
@@ -269,7 +272,7 @@ h1 em{font-style:normal;color:var(--hot)}
           </div>
           <p class="readout" id="cvtip" aria-live="polite"></p>
         </div>
-        <p>Regression alone beat every interpolation method; kriging what it missed cut another 20%. The map shows the model's own uncertainty, lightest right around the stations it can lean on.</p>
+        <p>Regression alone beat every interpolation method; kriging its leftovers cut RMSE another 20%. The map shows standard error, lowest near stations.</p>
       </article>
     </section>
     <section class="step" data-step="result">
@@ -373,7 +376,8 @@ update();
 const cv = document.getElementById("cv"), readout = document.getElementById("cvtip");
 const rowsCv = [...cv.querySelectorAll(".cvrow")];
 const say = row => { const c = +row.dataset.c;
-  readout.innerHTML = `<b>${row.querySelector(".cvl").textContent}</b><br>RMSE ${(c * 1.8).toFixed(2)} °F (${c.toFixed(3)} °C) · mean error ${row.dataset.me} °C`; };
+  const me = +row.dataset.me * 1.8;
+  readout.innerHTML = `<b>${row.querySelector(".cvl").textContent}</b><br>RMSE ${(c * 1.8).toFixed(1)} °F (${c.toFixed(2)} °C) · mean error ${me >= 0 ? "+" : "−"}${Math.abs(me).toFixed(2)} °F`; };
 const best = rowsCv[rowsCv.length - 1];
 rowsCv.forEach(row => {
   row.addEventListener("mouseenter", () => say(row)); row.addEventListener("focus", () => say(row));
