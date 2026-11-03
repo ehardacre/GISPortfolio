@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowers of the Appalachian Trail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Literata:ital,opsz,wght@0,7..72,400;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a rendered mockup opens the page, then the flat poster is pinned and the camera tours its details card by card, then the mockups close it out. Colors come from the poster: near-black ground, cream type, GBIF green, the orange highlight. */
+:root{
+  --ground:#121512;
+  --card:#1b201c;
+  --cream:#efe6d3;
+  --muted:#a8ab9d;
+  --green:#2fbf7a;
+  --orange:#e8a33b;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"Literata",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--cream);font:400 17px/1.6 var(--body)}
+a{color:inherit}
+em.sci{font-style:italic}
+
+/* top bar */
+.topbar{position:fixed;inset:0 0 auto 0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:12px clamp(16px,4vw,48px);background:rgba(18,21,18,.94);border-bottom:1px solid rgba(239,230,211,.12)}
+.topbar .t{font-family:var(--display);font-weight:700;font-size:24px;line-height:1;text-transform:uppercase;margin:0}
+.topbar .t em{font-style:normal;color:var(--green)}
+.topbar .who{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin:0;text-align:right;color:var(--muted)}
+.topbar .who a{text-decoration:none}
+.topbar .who a:hover,.topbar .who a:focus-visible{text-decoration:underline;text-underline-offset:3px;color:var(--cream)}
+
+/* hero: a render of the printed poster */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;
+  padding:clamp(80px,10vw,120px) clamp(16px,6vw,96px) clamp(40px,7vw,80px);
+  background:var(--ground) url("assets/mock-closeup.webp") center/cover no-repeat}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(18,21,18,.92) 0%,rgba(18,21,18,.7) 38%,rgba(18,21,18,0) 70%),linear-gradient(0deg,rgba(18,21,18,.8),rgba(18,21,18,0) 40%)}
+.hero > div{position:relative;max-width:40rem}
+.kicker{font:500 13px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin:0 0 18px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(48px,7vw,104px);line-height:.9;text-transform:uppercase;margin:0;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--green)}
+.hero .dek{font-size:clamp(17px,1.6vw,21px);line-height:1.5;color:var(--muted);max-width:36ch;margin:22px 0 0}
+.byline{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:28px;font:400 13px/1.4 var(--mono)}
+.byline span{border-top:2px solid var(--cream);padding-top:8px}
+
+/* the camera tour over the flat poster */
+.tour{position:relative}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;z-index:0;background:var(--ground)}
+.cam{position:absolute;left:0;top:0;width:5333px;height:8000px;transform-origin:0 0;will-change:transform;
+  transition:transform 1.2s cubic-bezier(.65,0,.35,1)}
+.cam img{display:block;width:5333px;height:8000px;max-width:none}
+.steps{position:relative;z-index:1;margin-top:-100vh;margin-top:-100svh;padding:0 clamp(16px,6vw,96px) 20vh}
+.step{min-height:100vh;min-height:100svh;display:flex;align-items:center;padding-top:60px}
+.card{background:var(--card);border:1px solid rgba(239,230,211,.12);border-left:4px solid var(--green);
+  padding:24px 28px;max-width:42ch;box-shadow:0 18px 40px -20px rgba(0,0,0,.8)}
+.card.hl{border-left-color:var(--orange)}
+.card .eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.card h2{font-family:var(--display);font-weight:700;font-size:clamp(28px,2.8vw,38px);line-height:.95;text-transform:uppercase;margin:0 0 14px;text-wrap:balance}
+.card p{margin:0 0 .9em}
+.card p:last-child{margin-bottom:0}
+.card .o{color:var(--orange)}
+.card .g{color:var(--green)}
+
+/* gallery of renders */
+.gallery{padding:clamp(56px,8vw,96px) clamp(16px,6vw,96px) 40px}
+.gallery h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,3vw,42px);line-height:1;text-transform:uppercase;margin:0 0 8px}
+.gallery > p{color:var(--muted);margin:0 0 24px;max-width:60ch}
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.shots img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border:1px solid rgba(239,230,211,.1)}
+.shots .wide{grid-column:1 / -1}
+.tools{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:28px 0 0}
+.tools li{font:400 12px/1.4 var(--mono);border:1px solid rgba(239,230,211,.25);padding:3px 8px}
+.endnote{padding:24px clamp(16px,6vw,96px) 48px}
+.endnote a{display:inline-block;background:var(--card);border:1px solid rgba(239,230,211,.12);padding:10px 14px;font:500 12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;text-decoration:none}
+.endnote a:hover,.endnote a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+@media (prefers-reduced-motion:reduce){.cam{transition:none}}
+@media (max-width:860px){
+  .topbar .t{font-size:19px}
+  .topbar .who{font-size:10.5px;letter-spacing:.1em}
+  .step{align-items:flex-end;padding-bottom:6vh}
+  .card{padding:18px 20px}
+  .shots{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <p class="t">Flowers of the <em>Appalachian Trail</em></p>
+  <p class="who"><a href="../index.html">GIS portfolio · Ethan Hardacre</a></p>
+</div>
+
+<header class="hero">
+  <div>
+    <p class="kicker">Data illustration · Poster</p>
+    <h1>Flowers of the <em>Appalachian Trail</em></h1>
+    <p class="dek">Twenty-five hand-drawn wildflowers, plotted by height against a map of the trail from Georgia to Maine, with GBIF observations showing where along the way each one grows.</p>
+    <div class="byline"><span>ArcGIS Pro</span><span>Adobe Illustrator</span><span>GBIF</span><span>Hand illustration</span></div>
+  </div>
+</header>
+
+<div class="tour">
+  <div class="stage" aria-hidden="true">
+    <div class="cam" id="cam"><img src="assets/poster.webp" alt="" width="5333" height="8000"></div>
+  </div>
+
+  <main class="steps">
+    <!-- data-box: the part of the poster (image pixels: left, top, right, bottom) the camera frames for this card -->
+    <section class="step" data-box="0 0 5333 8000">
+      <article class="card">
+        <p class="eyebrow">The poster</p>
+        <h2>25 figures</h2>
+        <p>Every flower on the poster is drawn by hand, then set into a chart built from real observation data. It's meant to reward a close look: scroll to explore the details.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="300 6150 5250 6860">
+      <article class="card">
+        <p class="eyebrow">The x-axis</p>
+        <h2>The trail is the axis</h2>
+        <p>Along the bottom, the Appalachian Trail runs from Springer Mountain in Georgia to Mount Katahdin in Maine, with each state marked. Everything above it lines up to a position on the trail.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="400 5100 5160 5750">
+      <article class="card">
+        <p class="eyebrow">The rows</p>
+        <h2>Where each flower grows</h2>
+        <p>Each row is one species. Its segments show population density along the trail, from species observations within 2 miles of it, provided by the <span class="g">Global Biodiversity Information Facility</span>. Brighter green means more observations.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="4013 5780 5305 6766">
+      <article class="card hl">
+        <p class="eyebrow">Reading one row</p>
+        <h2><span class="o">1</span> · <em class="sci">Diapensia lapponica</em></h2>
+        <p>The smallest flower on the poster, highlighted in <span class="o">orange</span>. Its row only appears at the far north end, and dashed lines drop to the map to show where: New Hampshire and Maine.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="60 2500 1800 4400">
+      <article class="card">
+        <p class="eyebrow">The y-axis</p>
+        <h2>Stacked by height</h2>
+        <p>The vertical axis is plant height on a doubling scale, from inches at the bottom to 128 feet at the top. The 25 species climb it in order, from <em class="sci">Diapensia lapponica</em> near the ground to the tulip tree, one of North America's tallest trees.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="400 480 3700 1750">
+      <article class="card">
+        <p class="eyebrow">The top row</p>
+        <h2><span class="g">25</span> · <em class="sci">Liriodendron tulipifera</em></h2>
+        <p>The tulip tree sits at the top of the height scale. Its row starts in Georgia and fades out partway north, around New York.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="2600 2400 3600 3450">
+      <article class="card">
+        <p class="eyebrow">The illustrations</p>
+        <h2>Drawn by hand</h2>
+        <p>Each species is a hand-drawn illustration, here <em class="sci">Lilium superbum</em>, the Turk's cap lily. The drawings were composed with the ArcGIS Pro data layers in Illustrator.</p>
+      </article>
+    </section>
+
+    <section class="step" data-box="380 6900 5100 7200">
+      <article class="card hl">
+        <p class="eyebrow">The legends</p>
+        <h2>Three ways to compare</h2>
+        <p>A taxonomy tree groups the 25 species from kingdom down to species, a scale gives each flower's diameter in inches, and a ramp reads out population density. <em class="sci">Diapensia lapponica</em> stays <span class="o">orange</span> in all three to orient the reader in the keys.</p>
+      </article>
+    </section>
+  </main>
+</div>
+
+<section class="gallery" aria-label="Mockups of the printed poster">
+  <h2>In print</h2>
+  <p>Rendered mockups of the finished poster.</p>
+  <div class="shots">
+    <img class="wide" src="assets/mock-flowers.webp" alt="Close angle on the printed poster showing trilliums, a pink lady's slipper and jack-in-the-pulpit with their labeled density rows" loading="lazy">
+    <img src="assets/mock-legend.webp" alt="Angled view of the poster's lower section: the trail map ending at Mount Katahdin and the Diapensia lapponica highlight" loading="lazy">
+    <img src="assets/mock-taxonomy.webp" alt="Angled view of the taxonomy legend and the trail map starting at Springer Mountain" loading="lazy">
+    <img src="assets/mock-height.webp" alt="Close angle on the height axis with columbine, fire pink, mayapple and red trillium" loading="lazy">
+    <img src="assets/mock-depth.webp" alt="Shallow-focus view across the poster toward the Diapensia lapponica highlight on the trail map" loading="lazy">
+  </div>
+  <ul class="tools" aria-label="Tools and data"><li>ArcGIS Pro</li><li>Adobe Illustrator</li><li>GBIF occurrence data</li><li>Hand illustration</li></ul>
+</section>
+
+<footer class="endnote"><a href="../index.html">← GIS portfolio · Ethan Hardacre</a></footer>
+
+<script>
+// Camera: fit the active card's box into the open part of the screen.
+const cam = document.getElementById("cam");
+const steps = [...document.querySelectorAll(".step")];
+let current = -1;
+function frame(i) {
+  const [x0, y0, x1, y1] = steps[i].dataset.box.split(" ").map(Number);
+  const vw = innerWidth, vh = innerHeight, wide = vw > 860;
+  const card = steps[i].querySelector(".card").getBoundingClientRect();
+  const top = 64, pad = 20;
+  const a = wide ? {l: card.right + pad, r: vw - pad, t: top + pad, b: vh - pad}
+                 : {l: pad, r: vw - pad, t: top + pad, b: Math.max(top + 160, vh * 0.42)};
+  const k = Math.min((a.r - a.l) / (x1 - x0), (a.b - a.t) / (y1 - y0));
+  const tx = (a.l + a.r) / 2 - (x0 + x1) / 2 * k, ty = (a.t + a.b) / 2 - (y0 + y1) / 2 * k;
+  cam.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
+}
+function update() {
+  const c = innerHeight / 2;
+  const i = steps.findIndex(s => { const r = s.getBoundingClientRect(); return r.top <= c && r.bottom > c; });
+  const next = i < 0 ? (current < 0 ? 0 : current) : i;
+  if (next !== current) { current = next; frame(current); }
+}
+addEventListener("scroll", () => requestAnimationFrame(update), {passive: true});
+addEventListener("resize", () => current >= 0 && frame(current));
+update();
+</script>
+</body>
+</html>
